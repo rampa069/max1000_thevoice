@@ -19,17 +19,12 @@ port (
     voice_enable    : in  std_logic;
     voice_addr      : in std_logic_vector(7 downto 0);
 	 voice_d5        : in std_logic;
-	 voice_ldq       : in std_logic;
-	 voice_ald       : out std_logic
+	 voice_ldq       : out std_logic
   );
 
 end voice_glue;
 
 
- -----------------------------------------------------------------------------
-  -- The Voice Module
-  -- Victor Trucco - 07/2019
-  -----------------------------------------------------------------------------
   
   architecture struct of voice_glue  is
 
@@ -55,7 +50,8 @@ end voice_glue;
   begin
   sp0256_ff_n <= not sp0256_ff;
   
-  
+  voice_ldq <= not fifo_empty_s;
+
   process (sp0256_ff)
   begin
     if rising_edge(sp0256_ff) then

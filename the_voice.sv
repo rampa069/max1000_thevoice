@@ -37,7 +37,7 @@ module the_voice (
 );
 
 
-wire clk2m5,clk750k;
+wire clk2m5,clk750k,pll_locked;
 
 pll pll
 (
@@ -48,6 +48,9 @@ pll pll
   .c1     (clk750k)
 );
 
+
+wire signed [15:0] snd_voice;
+wire reset_n = pll_locked && btn;
 voice_glue voice_glue
 (
  
@@ -56,15 +59,25 @@ voice_glue voice_glue
 
     .snd_voice_o (snd_voice),
 	 
-	 .cart_wr_n_i  (),
-	 .cart_cs_i		(),
-	 .res_n_i      (),
+	 .cart_wr_n_i  (gpio_d[5]),
+	 .cart_cs_i		(gpio_d[4]),
+	 .res_n_i      (reset_n),
 
-    .voice_enable (),
-    .voice_addr   (),
-	 .voice_d5     (),
-	 .voice_ldq    (),
-	 .voice_ald    ()  
+    .voice_enable (1'b1),
+    .voice_addr   (gpio_d[12:6]),
+	 .voice_d5     (gpio_d[13]),
+	 .voice_ldq    (gpio_d[3]) 
 );
 
+assign led[1] = gpio_d[4];
+assign led[2] = gpio_d[5];
+assign led[3] = reset_n;
+
+dac_dsm2v dac_dsm2v 
+(
+  .reset_i  (~reset_n),
+  .clock_i  (clk2m5),
+  .dac_i    (snd_voice),
+  .dac_o    (gpio_d[14])
+);
 endmodule
