@@ -6,6 +6,7 @@ incremental_db/
 output_files/
 simulation/
 timing/
+greybox_tmp/
 
 # VIM swap files
 *.swp
@@ -14,3 +15,6 @@ timing/
 # OS-specific litter files
 Thumbs.db
 .DS_Store
+*~
+*.bak
+
