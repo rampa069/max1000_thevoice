@@ -16,7 +16,6 @@ port (
 	 cart_cs_i		  : in std_logic;
 	 res_n_i         : in std_logic;
 
-    voice_enable    : in  std_logic;
     voice_addr      : in std_logic_vector(7 downto 0);
 	 voice_d5        : in std_logic;
 	 voice_ldq       : out std_logic
@@ -34,21 +33,16 @@ end voice_glue;
   signal sp0256_load : std_logic;
   signal sp0256_fifo_we : std_logic;
   signal sp0256_p14 : std_logic;
-  signal sp0256_wr  : std_logic := '1';
   signal sp0256_rst : std_logic := '1';
   signal sp0256_ff  : std_logic := '1';
-  signal sp0256_ff_n  : std_logic := '1';
-  signal cart_do_s : std_logic_vector(7 downto 0);
   signal sp0256_di : std_logic_vector(6 downto 0);
   signal sp0256_do : std_logic_vector(6 downto 0);
-  signal cpu_t0_s  : std_logic := '0';
   signal SP0256_trig : std_logic := '0';
   signal SP0256_trig_ff : std_logic := '0';
   signal fifo_empty_s : std_logic;
   signal stage : integer := 1;
 
   begin
-  sp0256_ff_n <= not sp0256_ff;
   
   voice_ldq <= not fifo_empty_s;
 
@@ -63,7 +57,7 @@ end voice_glue;
   process (clk2m5)
   begin
     if rising_edge(clk2m5) then
-        if voice_addr(7) = '1' and cart_wr_n_i = '0' and cart_cs_i = '0' and res_n_i = '1' and voice_enable = '1' then
+        if voice_addr(7) = '1' and cart_wr_n_i = '0' and cart_cs_i = '0' and res_n_i = '1' then
           sp0256_ff <= '0';
         else 
           sp0256_ff <= '1';
@@ -80,9 +74,9 @@ end voice_glue;
         case (stage) is
         
           when 1 =>
-            sp0256_trig <= '0'; 
+            sp0256_trig <= '0';
             
-            if fifo_empty_s = '0' and sp0256_ldq = '1' then -- tem algo para tocar and SP free?
+            if fifo_empty_s = '0' and sp0256_ldq = '1' then -- something to play and SP free?
               stage <= 2;
             end if;
             
@@ -119,7 +113,7 @@ end voice_glue;
                       --address bits on A1-A8 and pulsing the
                       --ALD output.
     
-    allophone         => sp0256_do,
+    allophone       => sp0256_do,
     trig_allophone  => sp0256_trig_ff, -- input: positive pulse to trigger
                           -- IC ADDRESS LOAD. A negative pulse on
                           -- this input loads the 8 address bits into

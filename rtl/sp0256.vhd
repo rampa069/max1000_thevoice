@@ -134,13 +134,7 @@ architecture syn of sp0256 is
  signal rom_do   		: std_logic_vector( 7 downto 0);
  signal bank 			: std_logic_vector( 1 downto 0);
 
- signal voiceE4_do   : std_logic_vector( 7 downto 0);
- signal voiceE8_do   : std_logic_vector( 7 downto 0);
- signal voiceE9_do   : std_logic_vector( 7 downto 0);
- signal voiceEA_do   : std_logic_vector( 7 downto 0);
- 
- 
- signal stage  : integer range 0 to 249; -- stage counter 0-24;
+ signal stage : integer range 0 to 249; -- stage counter 0-24;
  
  signal allo_entry                   : std_logic_vector(8 downto 0);
  signal allo_addr_lsb, allo_addr_msb : std_logic_vector(7 downto 0);
@@ -232,12 +226,10 @@ process (clock_750k, reset)
 				if stage = 0 and input_rdy_in = '0' then
 				
 						-- filter the bankswitch commands
-				         if allophone = "1100100" then bank <= "00"; -- Bank $E4
-						elsif allophone = "1101000" then bank <= "01"; -- Bank $E8
-						elsif allophone = "1101001" then bank <= "10" ; -- Bank $E9
-						elsif allophone = "1101010" then bank <= "11";  --Bank $EA
-						-- elsif allophone = "1101001" then bank <= "00";-- uncoment for SiDi without the 2 upper banks
-						-- elsif allophone = "1101010" then bank <= "00";
+				         if allophone = "1100100" then bank <= "00";
+						elsif allophone = "1101000" then bank <= "01";
+						elsif allophone = "1101001" then bank <= "10";
+						elsif allophone = "1101010" then bank <= "11";
 						elsif allophone <= "1011111" or allophone >= "1110000" then --filter the playable sounds
 								allo_entry <=          allophone*"11"; -- alophone times 3
 								rom_addr   <= "00000"&(allophone*"11");
@@ -443,46 +435,13 @@ sum_out <= to_signed( 32767,16) when sum_out_ul >  32767 else
 			  to_signed(-32768,16) when sum_out_ul < -32768 else
 			  sum_out_ul;
 
-rom_do <= 	voiceE4_do when bank = "00" else
-			voiceE8_do when bank = "01" else
-			voiceE9_do when bank = "10" else
-			voiceEA_do;
-
 			  
-			  
-bank_e4 : ENTITY work.bank_e4
+sp256_003 : ENTITY work.sp256_003
 port map(
  clock  => clock_2m5,
  clken  => clock_750k_n,
- address => rom_addr(12 downto 0),
- rden    => '1',
- q =>   voiceE4_do
-);
-
-bank_e8 : ENTITY work.bank_e8
-port map(
- clock  => clock_2m5,
- clken  => clock_750k_n,
- address => rom_addr(12 downto 0),
- rden    => '1',
- q => voiceE8_do
-);
-
-bank_e9 : ENTITY work.bank_e9
-port map(
- clock  => clock_2m5,
- clken  => clock_750k_n,
- address => rom_addr(12 downto 0),
- rden    => '1',
- q => voiceE9_do  
-);
-bank_ea : ENTITY work.bank_ea
-port map(
- clock  => clock_2m5,
- clken  => clock_750k_n,
- address => rom_addr(12 downto 0),
- rden    => '1',
- q => voiceEA_do  
+ address => bank & rom_addr,
+ q => rom_do  
 );
 
 
